@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    res.send('Components route is working');
-});
+const hardwareController = require('../controllers/hardwareController');
+
+router.get('/', hardwareController.getAllComponents);
 
 module.exports = router;
