@@ -1,1 +1,7 @@
-DELETE http://localhost:5000/api/components/2
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin_juan",
+  "password": "SuperSecretPassword123!"
+}
