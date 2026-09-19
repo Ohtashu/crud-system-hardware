@@ -3,20 +3,22 @@
 
 A full-stack web application designed to manage PC hardware inventory. This system features secure user authentication, complete CRUD (Create, Read, Update, Delete) capabilities, and PDF report generation, built with a React frontend and an Express.js RESTful API backend.
 
-**Repository:** [https://github.com/Ohtashu/crud-system-hardware](https://github.com/Ohtashu/crud-system-hardware)
+**Repository:** https://github.com/Ohtashu/crud-system-hardware
 
 ## Technical Stack
 * **Frontend:** ReactJS, Ant Design (UI Framework), Axios, jsPDF
 * **Backend:** Node.js, Express.js (RESTful API)
 * **Database:** MSSQL (Microsoft SQL Server)
 * **Authentication:** JSON Web Tokens (JWT)
-* **Version Control:** Git & GitHub (Committed by feature)
+* **Version Control:** Git & GitHub (committed by feature)
 
 ## Project Specifications Completed
 - [x] Login functionality (JWT-based authentication)
 - [x] CRUD functionality (Add, View, Edit, and Delete hardware components)
 - [x] Generate simple report (Export to PDF using jsPDF and autoTable)
 - [x] RESTful API architecture
+
+---
 
 ## How to Run and Test the Application
 
@@ -25,18 +27,51 @@ A full-stack web application designed to manage PC hardware inventory. This syst
 2. **Microsoft SQL Server** installed and running.
 3. **Git** installed to clone the repository.
 
-### Step 1: Database Setup
-1. Open SQL Server Management Studio (SSMS).
-2. Create a new database named `HardwareDB` (or your configured DB name).
-3. Execute the provided SQL scripts in the `/db` folder to create the `Users` and `Components` tables.
-4. Insert a test user into the `Users` table to allow for login testing.
+### Step 1: Database Setup (MSSQL)
+Because this system is designed strictly for admin inventory management, there is no public registration page. You must create the database and insert a test user manually using the following query.
 
-### Step 2: Backend Setup (Express.js)
-1. Open a terminal and navigate to the backend folder:
-   ```bash
-   cd crud-backend
+1. Open **SQL Server Management Studio (SSMS)**.
+2. Open a New Query window and execute the following SQL script to create the database, the required tables, and a default test user:
+
+```sql
+CREATE DATABASE HardwareDB;
+GO
+
+USE HardwareDB;
+GO
+
+-- Create Users Table
+CREATE TABLE Users (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
+
+-- Create Components Table
+CREATE TABLE Components (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    hardware_name VARCHAR(100) NOT NULL,
+    brand VARCHAR(50) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL
+);
+
+-- Insert a default user for login testing
+-- Username: admin | Password: password123
+INSERT INTO Users (username, password) 
+VALUES ('admin', 'password123');
 
 ```
+
+### Step 2: Backend Setup (Express.js)
+
+1. Open a terminal and navigate to the backend folder:
+```bash
+cd crud-backend
+
+```
+
 
 2. Install the required dependencies:
 ```bash
@@ -64,7 +99,7 @@ node server.js
 ```
 
 
-*The server should now be running on `http://localhost:5000`.*
+*The terminal should confirm the server is running on `http://localhost:5000` and connected to the database.*
 
 ### Step 3: Frontend Setup (ReactJS)
 
@@ -93,7 +128,7 @@ npm run dev
 
 ### Step 4: Testing the System
 
-1. **Login:** Enter the credentials of the test user you created in Step 1.
+1. **Login:** Enter the credentials of the test user you created in Step 1 (`admin` / `password123`).
 2. **Create:** Click "+ Add Component" to open the Ant Design modal and add a new piece of hardware.
 3. **Read:** View the newly added hardware on the dashboard grid.
 4. **Update:** Click the edit icon on a hardware card to modify its details.
@@ -105,11 +140,15 @@ npm run dev
 
 ## Challenges & Development Process
 
-I am not naturally strong with JavaScript, so I utilized an AI assistant honestly and truthfully as a pair-programmer and tutor throughout this development process. I used the AI to help me translate logic I understood from other programming concepts into modern React syntax, and to help me debug code when the application crashed.
+I'm still early in learning JavaScript, so I worked closely with an AI assistant throughout this project — describing what I wanted built, reviewing the code it produced, and typing it out myself to build familiarity with the syntax. I'm not yet able to write or debug this stack independently, and I want to be upfront about that rather than present the problem-solving here as more independent than it was.
 
-Key technical hurdles I navigated during this project included:
+Areas I leaned on AI most heavily for:
 
-* **React State & Modal Management:** Initially, the "Add Component" button was directly opening the modal without resetting the form state. This caused the form to hold onto old data if I had just closed an "Edit" session. I learned how to wire the button to a dedicated function that explicitly cleared the state (`setEditingId(null)`) and reset the form fields before rendering the UI.
-* **Axios Syntax Rules:** I struggled with specific REST API syntax rules in JavaScript, such as passing `headers` instead of `header`, forgetting the template literal syntax (`${id}`) when appending variables to API routes, and properly formatting `async/await` blocks to handle network delays.
-* **JSX Bracket & Layout Traps:** While building the UI, I accidentally broke the React component tree a few times by misplacing closing `</div>` tags and curly braces `}`, which caused the layout to crash or stranded functions (like the PDF generator) outside of their proper scope.
-* **Integrating PDF Generation:** Implementing the "Generate Report" feature using `jsPDF` and `jspdf-autotable` was highly challenging. I ran into strict IDE formatting warnings regarding capitalized constructors, and a fatal `doc.autoTable is not a function` error because modern React build tools strictly isolate dependencies. I solved this by importing and calling the standalone `autoTable(doc, {...})` function rather than attempting to attach it directly to the `jsPDF` object.
+* **React state management** — resetting form state correctly so the "Add Component" modal didn't carry over stale data from a previous "Edit" session.
+* **Axios / REST API syntax** — correct headers usage, template literals for dynamic routes (e.g. `${id}`), and structuring async/await calls.
+* **JSX structure and component scope** — keeping closing tags and braces aligned so the component tree and functions (like the PDF generator) stayed correctly scoped.
+* **PDF generation with jsPDF/autoTable** — resolving a `doc.autoTable is not a function` error by using the standalone `autoTable(doc, {...})` function instead of attaching it directly to the jsPDF instance.
+
+```
+
+```
