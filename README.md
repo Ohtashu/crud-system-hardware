@@ -113,5 +113,3 @@ Key technical hurdles I navigated during this project included:
 * **Axios Syntax Rules:** I struggled with specific REST API syntax rules in JavaScript, such as passing `headers` instead of `header`, forgetting the template literal syntax (`${id}`) when appending variables to API routes, and properly formatting `async/await` blocks to handle network delays.
 * **JSX Bracket & Layout Traps:** While building the UI, I accidentally broke the React component tree a few times by misplacing closing `</div>` tags and curly braces `}`, which caused the layout to crash or stranded functions (like the PDF generator) outside of their proper scope.
 * **Integrating PDF Generation:** Implementing the "Generate Report" feature using `jsPDF` and `jspdf-autotable` was highly challenging. I ran into strict IDE formatting warnings regarding capitalized constructors, and a fatal `doc.autoTable is not a function` error because modern React build tools strictly isolate dependencies. I solved this by importing and calling the standalone `autoTable(doc, {...})` function rather than attempting to attach it directly to the `jsPDF` object.
-
-```
