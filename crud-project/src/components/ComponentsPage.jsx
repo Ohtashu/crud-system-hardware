@@ -1,9 +1,10 @@
 import {useEffect, useState} from "react";
 import {message, List, Card, Button, Modal, Form, Input, Select, InputNumber, Popconfirm, Row, Col} from "antd";
 import axios from 'axios';
-import { EditOutlined, DeleteOutlined} from '@ant-design/icons';
-
-function ComponentsPage(){
+import { EditOutlined, DeleteOutlined, DownloadOutlined} from '@ant-design/icons';
+import jsPDF from 'jspdf';
+import autoTable from "jspdf-autotable";
+function ComponentsPage() {
 
     const [components, setComponents] = useState([]);
 
@@ -17,13 +18,13 @@ function ComponentsPage(){
 
             const token = localStorage.getItem('token');
 
-            const responce = await axios.get('http://localhost:5000/api/components',{
+            const responce = await axios.get('http://localhost:5000/api/components', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
             setComponents(responce.data);
-        } catch(error){
+        } catch (error) {
             console.error('Failed to fetch hardware: ', error);
             message.error('Failed to load inventory');
         }
@@ -70,8 +71,7 @@ function ComponentsPage(){
             form.resetFields();
             setEditingId(null);
             await fetchHardware();
-        }
-        catch (error){
+        } catch (error) {
             console.error('Failed to save component: ', error);
             await message.error('Failed to save hardware.');
         }
@@ -85,19 +85,48 @@ function ComponentsPage(){
             await axios.delete(`http://localhost:5000/api/components/${id}`, config);
             await message.success('Deletion Successful!');
 
-           await fetchHardware();
+            await fetchHardware();
 
-        }catch(error){
-                console.error('Failed to delete component: ', error);
-                await message.error('Failed to delete hardware');
-            }
+        } catch (error) {
+            console.error('Failed to delete component: ', error);
+            await message.error('Failed to delete hardware');
+        }
     }
+
 
     //Handles Logout
     const handleLogout = () => {
         localStorage.removeItem('token');
-        window.location.href= '/login';
+        window.location.href = '/login';
     }
+
+    const generateReport = () => {
+
+    if (components.length === 0) {
+        message.warning('No data to generate a report.');
+        return;
+    }
+    const doc = new jsPDF();
+    doc.text('Hardware Inventory Report', 14, 15);
+
+    const tableMapColumn = ['ID', 'Hardware Name', 'Manufacturer', 'Category', 'Qty', 'Price'];
+
+    const tableRows = components.map(item => [
+        item.id,
+        item.hardware_name,
+        item.brand,
+        item.category,
+        item.quantity,
+        item.price
+    ]);
+
+    autoTable(doc, {
+        head: [tableMapColumn],
+        body: tableRows,
+        startY: 20,
+    });
+    doc.save('Hardware_Inventory_report.pdf');
+}
     return (
         <div style={{padding: '50px'}}>
 
@@ -107,13 +136,17 @@ function ComponentsPage(){
                     Logout
                 </Button>
             </div>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Button type='primary'
+                        style={{marginBottom: '20px'}}
+                        onClick={openAddModal}
+                >
+                    + Add Component
+                </Button>
 
-            <Button type='primary'
-                    style={{marginBottom: '20px'}}
-                    onClick={openAddModal}
-                    >
-                + Add Component
-            </Button>
+                <Button onClick={generateReport} icon={<DownloadOutlined/>}> Export PDF Report </Button>
+            </div>
+
 
             <Modal title={editingId ? 'Edit Hardware' : 'Add New Hardware'}
                    open = {isModalOpen}
